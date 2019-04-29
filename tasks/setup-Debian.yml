@@ -1,0 +1,18 @@
+---
+- copy:
+    src: "{{ distribution_codename }}/"
+    dest: /
+    mode: preserve
+
+- apt:
+    update_cache: yes
+    upgrade: dist
+
+- apt:
+    name: "{{ __apt_packages }}"
+
+- shell: "/usr/local/bin/{{ item }}"
+  loop:
+#  - make_install_flame.sh
+#  - make_install_elemental.sh
+  - make_install_fmt.sh

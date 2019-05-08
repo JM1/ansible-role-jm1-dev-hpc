@@ -2,9 +2,12 @@
 # vim:set tabstop=8 shiftwidth=4 expandtab:
 # kate: space-indent on; indent-width 4;
 #
-# Copyright (c) 2018 Jakob Meng, <jakobmeng@web.de>
+# Copyright (c) 2018-2019 Jakob Meng, <jakobmeng@web.de>
 #
 # {fmt}
+#
+# NOTE: This script must cope with being called more than once, e.g. by Ansible!
+#
 # References:
 #  https://github.com/fmtlib/fmt
 
@@ -15,6 +18,7 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 255
 fi
 
+USERNAME=nobody
 PREFIX=/usr
 export DEBIAN_FRONTEND=noninteractive
 
@@ -29,13 +33,20 @@ export CC=gcc
 export CXX=g++
 
 cd /usr/local/src/
-git clone --depth 1 https://github.com/fmtlib/fmt.git
-cd fmt/
+if [ ! -e fmt ]; then
+    git clone --depth 1 https://github.com/fmtlib/fmt.git
+    cd fmt/
+else
+    cd fmt/
+    git pull
+fi
 
-USERNAME=nobody
+if [ ! -e build ]; then
+    mkdir build
+    chown "$USERNAME" build/
+    chmod a+rx build/
+fi
 
-mkdir build
-chown "$USERNAME" build
 cd build/
 
 sudo -u "$USERNAME" cmake \

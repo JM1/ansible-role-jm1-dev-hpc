@@ -2,9 +2,12 @@
 # vim:set tabstop=8 shiftwidth=4 expandtab:
 # kate: space-indent on; indent-width 4;
 #
-# Copyright (c) 2018 Jakob Meng, <jakobmeng@web.de>
+# Copyright (c) 2018-2019 Jakob Meng, <jakobmeng@web.de>
 #
 # libflame
+#
+# NOTE: This script must cope with being called more than once, e.g. by Ansible!
+#
 # References:
 #  https://github.com/flame/libflame/blob/master/docs/libflame/libflame.pdf
 #  https://github.com/flame/libflame/blob/master/INSTALL
@@ -12,33 +15,41 @@
 
 set -e
 
-if [ "$(id -u)" -eq 0 ]; then 
-    echo "Please do not run as root"
+if [ "$(id -u)" -ne 0 ]; then 
+    echo "Please do run as root"
     exit 255
 fi
 
+USERNAME=nobody
 PREFIX=/opt/libflame
 export DEBIAN_FRONTEND=noninteractive
 
-sudo apt-get install -y \
+apt-get install -y \
     git dpkg-dev coreutils debhelper gcc ccache gfortran make libopenblas-dev liblapack-dev
 
 # dpkg-dev is required for dpkg-architecture
 # coreutils is required for nproc
 
-sudo apt-get clean
-sudo update-ccache-symlinks
+apt-get clean
+update-ccache-symlinks
 
 eval $(dpkg-architecture)
 export PATH="/usr/lib/ccache:$PATH"
 export CC=gcc
 
 cd /usr/local/src/
-# build/update-version-file.sh requires full clone for version detection
-git -C /tmp/ clone https://github.com/flame/libflame.git
-sudo mv -i /tmp/libflame .
-cd libflame/
-
+if [ ! -e libflame ]; then
+    mkdir libflame
+    chown -R "$USERNAME" libflame/
+    chmod a+rx libflame/
+    # build/update-version-file.sh requires full clone for version detection
+    sudo -u "$USERNAME" git clone https://github.com/flame/libflame.git
+    cd libflame/
+else
+    cd libflame/
+    sudo -u "$USERNAME" make distclean # building again without running clean before results in linker errors
+    sudo -u "$USERNAME" git pull
+fi
 
 # NOTE: "make install" fails symlinking if PREFIX/inlude dir already exists. It is assumed that $PREFIX/include does not
 #       exist, because the build system will maintain this file as a symlink to the specific include associated with the
@@ -46,7 +57,7 @@ cd libflame/
 #       $HOME/flame).
 #       Ref.: https://github.com/flame/libflame/issues/9
 
-./configure \
+sudo -u "$USERNAME" ./configure \
     --prefix="$PREFIX" \
     --build="$DEB_BUILD_MULTIARCH" \
     --enable-static-build \
@@ -64,18 +75,16 @@ cd libflame/
 #       Doing so will result in undefined behavior from ar.
 #       Ref.: https://github.com/flame/libflame/blob/master/docs/libflame/libflame.pdf
 
-make -j$(nproc)
+sudo -u "$USERNAME" make -j$(nproc)
 
-sudo make install
+make install
 
 # add library search path
 # NOTE: Only used at runtime, not linktime!
-sudo sh -c "echo '$PREFIX/lib' >> /etc/ld.so.conf.d/flame.conf" 
-sudo ldconfig
+echo "$PREFIX/lib" > /etc/ld.so.conf.d/flame.conf
+ldconfig
 
 # make libraries known
 for f in libflame.so libflame.a; do
-    sudo ln -s "$PREFIX/lib/$f" "/usr/lib/${DEB_BUILD_MULTIARCH}/$f"
+    ln -s -f "$PREFIX/lib/$f" "/usr/lib/${DEB_BUILD_MULTIARCH}/$f"
 done
-
-exit

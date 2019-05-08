@@ -2,9 +2,12 @@
 # vim:set tabstop=8 shiftwidth=4 expandtab:
 # kate: space-indent on; indent-width 4;
 #
-# Copyright (c) 2018 Jakob Meng, <jakobmeng@web.de>
+# Copyright (c) 2018-2019 Jakob Meng, <jakobmeng@web.de>
 #
 # Elemental
+#
+# NOTE: This script must cope with being called more than once, e.g. by Ansible!
+#
 # References:
 #  https://github.com/elemental/Elemental/blob/master/debian/control
 #  https://github.com/elemental/Elemental/blob/master/debian/rules
@@ -12,15 +15,16 @@
 
 set -e
 
-if [ "$(id -u)" -eq 0 ]; then 
-    echo "Please do not run as root"
+if [ "$(id -u)" -ne 0 ]; then 
+    echo "Please do run as root"
     exit 255
 fi
 
+USERNAME=nobody
 PREFIX=/opt/Elemental/
 export DEBIAN_FRONTEND=noninteractive
 
-sudo apt-get install -y \
+apt-get install -y \
     git dpkg-dev gcc gfortran make cmake ccache libopenmpi-dev libopenblas-dev liblapack-dev libscalapack-mpi-dev \
     libscalapack-openmpi-dev libmetis-dev qtbase5-dev libmpc-dev libqd-dev python-numpy
 
@@ -32,8 +36,8 @@ sudo apt-get install -y \
 # dpkg-dev is required for dpkg-architecture
 # coreutils is required for nproc
 
-sudo apt-get clean
-sudo update-ccache-symlinks
+apt-get clean
+update-ccache-symlinks
 
 eval $(dpkg-architecture)
 export PATH="/usr/lib/ccache:$PATH"
@@ -41,10 +45,13 @@ export CC=gcc
 export CXX=g++
 
 cd /usr/local/src/
-git -C /tmp/ clone --depth 1 https://github.com/elemental/Elemental.git
-sudo mv -i /tmp/Elemental .
-
-cd Elemental/
+if [ ! -e Elemental ]; then
+    git clone --depth 1 https://github.com/elemental/Elemental.git
+    cd Elemental/
+else
+    cd Elemental/
+    git pull
+fi
 
 # If either MinSizeRel or RelWithDebInfo are specified, then Elemental falls back to Release mode.
 #  Ref.: https://github.com/elemental/Elemental/blob/master/CMakeLists.txt
@@ -60,7 +67,7 @@ cd Elemental/
 #  Ref.: https://github.com/elemental/Elemental/blob/master/include/El/core/limits.hpp#L143
 
 # set minimal possible language level and disable compiler extensions to ease inclusion in own projects
-cat << 'EOF' | patch -p0
+cat << 'EOF' | patch -p0 --forward --reject-file=- || true
 --- CMakeLists.txt.orig 2018-07-27 07:52:10.460430024 +0000
 +++ CMakeLists.txt  2018-07-27 08:37:24.809012628 +0000
 @@ -12,14 +12,7 @@
@@ -97,8 +104,15 @@ cat << 'EOF' | patch -p0
 
 EOF
 
-mkdir build && cd build/
-cmake \
+if [ ! -e build ]; then
+    mkdir build
+    chown "$USERNAME" build/
+    chmod a+rx build/
+fi
+
+cd build/
+
+sudo -u "$USERNAME" cmake \
     -DCMAKE_BUILD_TYPE=Debug \
     -DBINARY_SUBDIRECTORIES=OFF \
     -DEL_USE_QT5=ON \
@@ -122,17 +136,11 @@ cmake \
     #-DCMAKE_CXX_FLAGS=-isystem\ /opt/flame/include \
     #-DCMAKE_EXPORT_NO_PACKAGE_REGISTRY=ON \
 
-make -j$(nproc)
+sudo -u "$USERNAME" make -j$(nproc)
 
-sudo make install
+make install
 
 # add library search path
 # NOTE: Only used at runtime, not linktime!
-sudo sh -c "echo '$PREFIX/lib/${DEB_BUILD_MULTIARCH}' >> /etc/ld.so.conf.d/Elemental.conf"
-sudo ldconfig
-
-exit
-
-
-
-
+echo "$PREFIX/lib/${DEB_BUILD_MULTIARCH}" > /etc/ld.so.conf.d/Elemental.conf
+ldconfig

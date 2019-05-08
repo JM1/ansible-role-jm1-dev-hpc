@@ -1,2 +1,19 @@
 ---
-__apt_packages: []
+__apt_packages:
+  - libmbedtls-dev
+  - libusb-1.0-0-dev
+  - libxml2-dev
+  - libcrypto++-dev
+  - liblapack-dev
+  - liblapacke-dev
+  - libopencv-dev
+  - libnetcdf-c++4-dev
+  - libnetcdf-dev
+  - netcdf-bin
+  - libvtk6-dev
+  - python-vtk6
+  - paraview
+
+# NOTE:
+# - libnetcdf-c++4-dev and libnetcdf-dev are for handling netCDF files as used for Grids in DLRs TAU
+# - libvtk6-dev and paraview are for reading/writing and visualizing *.vtk files as produced by tau2vtk

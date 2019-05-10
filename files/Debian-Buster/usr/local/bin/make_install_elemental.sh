@@ -66,6 +66,9 @@ fi
 # disable quadmath.h (EL_DISABLE_QUAD) because it requires a non-standard compiler extension (-std=gnu++11).
 #  Ref.: https://github.com/elemental/Elemental/blob/master/include/El/core/limits.hpp#L143
 
+# disable Qt5 because it is not exported and thus builds using Elemental are currently broken,
+#  Ref.: https://github.com/elemental/Elemental/pull/275
+
 # set minimal possible language level and disable compiler extensions to ease inclusion in own projects
 cat << 'EOF' | patch -p0 --forward --reject-file=- || true
 --- CMakeLists.txt.orig 2018-07-27 07:52:10.460430024 +0000
@@ -115,7 +118,7 @@ cd build/
 sudo -u "$USERNAME" cmake \
     -DCMAKE_BUILD_TYPE=Debug \
     -DBINARY_SUBDIRECTORIES=OFF \
-    -DEL_USE_QT5=ON \
+    -DEL_USE_QT5=OFF \
     -DEL_TESTS=ON \
     -DEL_EXAMPLES=ON \
     -DEL_HYBRID=ON \

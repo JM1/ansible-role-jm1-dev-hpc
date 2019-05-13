@@ -50,7 +50,7 @@ fi
 cd build/
 
 sudo -u "$USERNAME" cmake \
-    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DCMAKE_INSTALL_PREFIX="$PREFIX" \
     ..
 

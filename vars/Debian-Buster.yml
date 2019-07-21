@@ -1,9 +1,6 @@
 ---
 __apt_packages:
-  - libmbedtls-dev
-  - libusb-1.0-0-dev
-  - libxml2-dev
-  - libcrypto++-dev
+  - libblas-dev
   - liblapack-dev
   - liblapacke-dev
   - libopencv-dev

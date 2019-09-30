@@ -62,7 +62,7 @@ sudo -u "$USERNAME" ./configure \
     --build="$DEB_BUILD_MULTIARCH" \
     --enable-static-build \
     --enable-dynamic-build \
-    --enable-lapack2flame \
+    --disable-lapack2flame \
     --enable-external-lapack-interfaces \
     --enable-supermatrix \
     --enable-multithreading=pthreads \
@@ -70,6 +70,9 @@ sudo -u "$USERNAME" ./configure \
     --enable-memory-alignment=16 \
     --enable-debug \
     --enable-max-arg-list-hack
+
+# NOTE: LAPACK calls from C code that was generated MATLAB Coder are incompatible to libflame's compatibility layer that
+#       maps LAPACK invocations to their corresponding FLAME/C implementations. That's why we use --disable-lapack2flame
 
 # NOTE: make may not be run in parallel to build libflame when option '--enable-max-arg-list-hack' is enabled! 
 #       Doing so will result in undefined behavior from ar.

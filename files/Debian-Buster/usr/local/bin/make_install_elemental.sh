@@ -25,8 +25,8 @@ PREFIX=/opt/Elemental/
 export DEBIAN_FRONTEND=noninteractive
 
 apt-get install -y \
-    git dpkg-dev gcc gfortran make cmake ccache libopenmpi-dev libopenblas-dev liblapack-dev libscalapack-mpi-dev \
-    libscalapack-openmpi-dev libmetis-dev qtbase5-dev libmpc-dev libqd-dev python-numpy
+    git dpkg-dev gcc gfortran make cmake ccache libopenmpi-dev libopenblas-dev liblapack-dev \
+    libmetis-dev qtbase5-dev libmpc-dev libqd-dev python-numpy
 
 # libmpc-dev depends on e.g. libgmp-dev and libmpfr-dev
 # libmpich-dev is an alternative to libopenmpi-dev
@@ -56,8 +56,6 @@ fi
 # If either MinSizeRel or RelWithDebInfo are specified, then Elemental falls back to Release mode.
 #  Ref.: https://github.com/elemental/Elemental/blob/master/CMakeLists.txt
 
-# auto detection of ScaLAPACK does not work and thus we use MATH_LIBS
-
 # exported cmake targets compute library paths relative to *.cmake files thus 
 #  symlinks to elementals cmake folder do not work!
 
@@ -68,6 +66,9 @@ fi
 
 # disable Qt5 because it is not exported and thus builds using Elemental are currently broken,
 #  Ref.: https://github.com/elemental/Elemental/pull/275
+
+# disable ScaLAPACK because its usage in Elemental is buggy.
+#  Ref.: https://github.com/JM1/hbrs-mpl/commit/65a2b475f0754f3fd3e63e0b065fba5a35abf90a
 
 # set minimal possible language level and disable compiler extensions to ease inclusion in own projects
 cat << 'EOF' | patch -p0 --forward --reject-file=- || true
@@ -123,10 +124,10 @@ sudo -u "$USERNAME" cmake \
     -DEL_EXAMPLES=OFF \
     -DEL_HYBRID=ON \
     -DINSTALL_PYTHON_PACKAGE=ON \
-    -DEL_DISABLE_SCALAPACK=OFF \
+    -DEL_DISABLE_SCALAPACK=ON \
     -DEL_DISABLE_PARMETIS=ON \
     -DEL_DISABLE_QUAD=ON \
-    -DMATH_LIBS="-lscalapack-openmpi -lflame -llapack -lopenblas" \
+    -DMATH_LIBS="-lflame -llapack -lopenblas" \
     -DCMAKE_INSTALL_PREFIX="$PREFIX" \
     -DCMAKE_INSTALL_LIBDIR="lib/${DEB_BUILD_MULTIARCH}" \
     -DINSTALL_CMAKE_DIR="lib/${DEB_BUILD_MULTIARCH}/cmake" \

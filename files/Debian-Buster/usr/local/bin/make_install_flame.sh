@@ -2,7 +2,7 @@
 # vim:set tabstop=8 shiftwidth=4 expandtab:
 # kate: space-indent on; indent-width 4;
 #
-# Copyright (c) 2018-2019 Jakob Meng, <jakobmeng@web.de>
+# Copyright (c) 2018-2020 Jakob Meng, <jakobmeng@web.de>
 #
 # libflame
 #
@@ -15,15 +15,15 @@
 
 set -e
 
-if [ "$(id -u)" -ne 0 ]; then 
-    echo "Please do run as root"
+if [ "$(id -u)" -ne 0 ]; then
+    echo "Please do run as root" >&2
     exit 125
 fi
 
 if [ -e /opt/libflame/include/FLAME.h ] &&
     [ -e /opt/libflame/lib/libflame.a ] &&
     [ -e /opt/libflame/lib/libflame.so ]; then
-    echo "FLAME is already installed. Skipping.."
+    echo "FLAME is already installed. Skipping.." >&2
     exit 124
 fi
 

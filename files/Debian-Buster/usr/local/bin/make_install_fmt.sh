@@ -14,13 +14,13 @@
 set -e
 
 if [ "$(id -u)" -ne 0 ]; then
-    echo "Please do run as root"
+    echo "Please do run as root" >&2
     exit 125
 fi
 
 if [ -f /usr/local/src/fmt/build/install_manifest.txt ] &&
     cat /usr/local/src/fmt/build/install_manifest.txt | xargs -i test -e '{}'; then
-    echo "fmt is already installed. Skipping.."
+    echo "fmt is already installed. Skipping.." >&2
     exit 124
 fi
 

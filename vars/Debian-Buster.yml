@@ -7,8 +7,9 @@ __apt_packages:
   - libnetcdf-c++4-dev
   - libnetcdf-dev
   - netcdf-bin
-  - libvtk6-dev
-  - python-vtk6
+  - libvtk7-dev
+  - python3-vtk7
+  - vtk7-examples
   - paraview
 
 # NOTE:

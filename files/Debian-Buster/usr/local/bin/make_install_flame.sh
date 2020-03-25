@@ -17,7 +17,14 @@ set -e
 
 if [ "$(id -u)" -ne 0 ]; then 
     echo "Please do run as root"
-    exit 255
+    exit 125
+fi
+
+if [ -e /opt/libflame/include/FLAME.h ] &&
+    [ -e /opt/libflame/lib/libflame.a ] &&
+    [ -e /opt/libflame/lib/libflame.so ]; then
+    echo "FLAME is already installed. Skipping.."
+    exit 124
 fi
 
 USERNAME=nobody
@@ -39,6 +46,7 @@ export CC=gcc
 
 cd /usr/local/src/
 if [ ! -e libflame ]; then
+    # libflame is build in-source, so its directory must be writeable by $USERNAME
     mkdir libflame
     chown -R "$USERNAME" libflame/
     chmod a+rx libflame/

@@ -2,7 +2,7 @@
 # vim:set tabstop=8 shiftwidth=4 expandtab:
 # kate: space-indent on; indent-width 4;
 #
-# Copyright (c) 2018-2019 Jakob Meng, <jakobmeng@web.de>
+# Copyright (c) 2018-2020 Jakob Meng, <jakobmeng@web.de>
 #
 # {fmt}
 #
@@ -13,9 +13,15 @@
 
 set -e
 
-if [ "$(id -u)" -ne 0 ]; then 
+if [ "$(id -u)" -ne 0 ]; then
     echo "Please do run as root"
-    exit 255
+    exit 125
+fi
+
+if [ -f /usr/local/src/fmt/build/install_manifest.txt ] &&
+    cat /usr/local/src/fmt/build/install_manifest.txt | xargs -i test -e '{}'; then
+    echo "fmt is already installed. Skipping.."
+    exit 124
 fi
 
 USERNAME=nobody

@@ -2,7 +2,7 @@
 # vim:set tabstop=8 shiftwidth=4 expandtab:
 # kate: space-indent on; indent-width 4;
 #
-# Copyright (c) 2018-2019 Jakob Meng, <jakobmeng@web.de>
+# Copyright (c) 2018-2020 Jakob Meng, <jakobmeng@web.de>
 #
 # Elemental
 #
@@ -15,9 +15,15 @@
 
 set -e
 
-if [ "$(id -u)" -ne 0 ]; then 
+if [ "$(id -u)" -ne 0 ]; then
     echo "Please do run as root"
-    exit 255
+    exit 125
+fi
+
+if [ -f /usr/local/src/Elemental/build/install_manifest.txt ] &&
+    cat /usr/local/src/Elemental/build/install_manifest.txt | xargs -i test -e '{}'; then
+    echo "Elemental is already installed. Skipping.."
+    exit 124
 fi
 
 USERNAME=nobody
@@ -26,7 +32,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 apt-get install -y \
     git dpkg-dev gcc gfortran make cmake ccache libopenmpi-dev libopenblas-dev liblapack-dev \
-    libmetis-dev qtbase5-dev libmpc-dev libqd-dev python-numpy
+    libmetis-dev libmpc-dev libqd-dev python-numpy
 
 # libmpc-dev depends on e.g. libgmp-dev and libmpfr-dev
 # libmpich-dev is an alternative to libopenmpi-dev
@@ -35,6 +41,7 @@ apt-get install -y \
 #  but elemental requires a patched version not available in Debian
 # dpkg-dev is required for dpkg-architecture
 # coreutils is required for nproc
+# qtbase5-dev is not going to be installed because Qt5 support for Elemental has been disabled below
 
 apt-get clean
 update-ccache-symlinks

@@ -14,11 +14,19 @@
      package_name: "jm1-dev-hpc"
      package_depends: "{{ apt_packages }}"
 
-- shell: "/usr/local/bin/{{ item }}"
+- shell: "/usr/local/bin/make_install_{{ item|lower }}.sh"
+  register: install_result
+  changed_when:
+    not (install_result.rc == 124 and install_result.stdout == "{{ item }} is already installed. Skipping..")
+  failed_when: not (
+        (install_result.rc == 0) or
+        (install_result.rc == 124 and install_result.stdout == "{{ item }} is already installed. Skipping..")
+    )
   loop:
-  - make_install_flame.sh
-  - make_install_elemental.sh
-  - make_install_fmt.sh
+  - FLAME
+  - Elemental
+  - fmt
 
 - set_fact:
     apt_packages: !!null
+    install_result: !!null

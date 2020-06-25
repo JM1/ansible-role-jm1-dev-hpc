@@ -1,18 +1,29 @@
 ---
-- set_fact:
-    apt_packages: "{{ __apt_packages|list }}"
-  when: apt_packages|default(None) == None
-
 - copy:
-    src: "{{ ansible_distribution }}-{{ ansible_distribution_version }}/"
+    src: "{{ distribution_id|join('-') }}/"
     dest: /
     mode: preserve
 
 - include_role:
     name: jm1.virtual_pkg
   vars:
-     package_name: "jm1-dev-hpc"
-     package_depends: "{{ apt_packages }}"
+    package_name: "jm1-dev-hpc"
+    package_depends:
+    - libblas-dev
+    - liblapack-dev
+    - liblapacke-dev
+    - libopencv-dev
+    - libnetcdf-c++4-dev
+    - libnetcdf-dev
+    - netcdf-bin
+    - libvtk7-dev
+    - python3-vtk7
+    - vtk7-examples
+    - paraview
+
+    # NOTE:
+    # - libnetcdf-c++4-dev and libnetcdf-dev are for handling netCDF files as used for Grids in DLRs TAU
+    # - libvtk6-dev and paraview are for reading/writing and visualizing *.vtk files as produced by tau2vtk
 
 - shell: "/usr/local/bin/make_install_{{ item|lower }}.sh"
   register: install_result
@@ -28,5 +39,4 @@
   - fmt
 
 - set_fact:
-    apt_packages: !!null
     install_result: !!null

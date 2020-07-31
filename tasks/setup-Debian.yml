@@ -19,6 +19,7 @@
     - python3-vtk7
     - vtk7-examples
     - paraview
+    - paraview-dev # e.g. for compiling and linking simulation software against ParaView Catalyst
 
     # NOTE:
     # - libnetcdf-c++4-dev and libnetcdf-dev are for handling netCDF files as used for Grids in DLRs TAU

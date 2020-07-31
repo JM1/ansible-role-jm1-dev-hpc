@@ -32,7 +32,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 apt-get install -y \
     git dpkg-dev gcc gfortran make cmake ccache libopenmpi-dev libopenblas-dev liblapack-dev \
-    libmetis-dev libmpc-dev libqd-dev python-numpy
+    libmetis-dev libmpc-dev libqd-dev
 
 # libmpc-dev depends on e.g. libgmp-dev and libmpfr-dev
 # libmpich-dev is an alternative to libopenmpi-dev
@@ -42,6 +42,7 @@ apt-get install -y \
 # dpkg-dev is required for dpkg-architecture
 # coreutils is required for nproc
 # qtbase5-dev is not going to be installed because Qt5 support for Elemental has been disabled below
+# python-numpy is not going to be installed because Python support for Elemental has been disabled below
 
 apt-get clean
 update-ccache-symlinks
@@ -76,6 +77,9 @@ fi
 
 # disable ScaLAPACK because its usage in Elemental is buggy.
 #  Ref.: https://github.com/JM1/hbrs-mpl/commit/65a2b475f0754f3fd3e63e0b065fba5a35abf90a
+
+# disable Python because Elemental only supports Python 2 which will be EOL in the end of 2020
+#  Ref.: https://github.com/elemental/Elemental/blob/master/CMakeLists.txt#L114
 
 # set minimal possible language level and disable compiler extensions to ease inclusion in own projects
 cat << 'EOF' | patch -p0 --forward --reject-file=- || true
@@ -130,7 +134,7 @@ sudo -u "$USERNAME" cmake \
     -DEL_TESTS=OFF \
     -DEL_EXAMPLES=OFF \
     -DEL_HYBRID=ON \
-    -DINSTALL_PYTHON_PACKAGE=ON \
+    -DINSTALL_PYTHON_PACKAGE=OFF \
     -DEL_DISABLE_SCALAPACK=ON \
     -DEL_DISABLE_PARMETIS=ON \
     -DEL_DISABLE_QUAD=ON \

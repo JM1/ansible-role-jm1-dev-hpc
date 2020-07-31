@@ -86,7 +86,18 @@ sudo -u "$USERNAME" ./configure \
 #       Doing so will result in undefined behavior from ar.
 #       Ref.: https://github.com/flame/libflame/blob/master/docs/libflame/libflame.pdf
 
-sudo -u "$USERNAME" make -j$(nproc)
+# libflame's python script build/flatten-headers.py uses Python interpreter 'python' by default which is not available
+# e.g. on Debian 11 (Bullseye) or Ubuntu 20.04 LTS (Focal Fossa) by default, hence we search for known python
+# interpreters first.
+PYTHON=
+for pyinterpreter in python python3 python2; do
+    if which $pyinterpreter >/dev/null; then
+        PYTHON=$pyinterpreter
+        break
+    fi
+done
+
+sudo -u "$USERNAME" make -j$(nproc) PYTHON=$PYTHON
 
 make install
 

@@ -6,7 +6,7 @@
 
 - jm1.pkg.meta_pkg:
     name: "jm1-dev-hpc"
-    version: "1"
+    version: "2"
     depends:
     - libblas-dev
     - liblapack-dev
@@ -20,10 +20,11 @@
     - vtk7-examples
     - paraview
     - paraview-dev # e.g. for compiling and linking simulation software against ParaView Catalyst
+    - paraview-python
 
     # NOTE:
     # - libnetcdf-c++4-dev and libnetcdf-dev are for handling netCDF files as used for Grids in DLRs TAU
-    # - libvtk6-dev and paraview are for reading/writing and visualizing *.vtk files as produced by tau2vtk
+    # - libvtk7-dev and paraview are for reading/writing and visualizing *.vtk files as produced by tau2vtk
 
 - shell: "/usr/local/bin/make_install_{{ item|lower }}.sh"
   register: install_result

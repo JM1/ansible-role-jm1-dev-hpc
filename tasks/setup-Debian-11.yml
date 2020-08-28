@@ -1,0 +1,75 @@
+---
+- copy:
+    src: "{{ distribution_id|join('-') }}/"
+    dest: /
+    mode: preserve
+
+- name: Gather installed packages
+  package_facts:
+
+- name: Install (unofficial) ParaView packages with patches for bug 959387, https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=959387
+  when: ansible_facts.packages['paraview']['version']|default(None) != '5.7.0+ds.1-3'
+  block:
+  - name: Install dependencies for 'deb' parameter of Ansible's apt module
+    apt:
+      name: xz-utils
+
+  - name: Remove VTK and ParaView packages to prevent broken package dependencies
+    apt:
+      name:
+      - paraview
+      - paraview-dev
+      - paraview-python
+      - python3-paraview
+      - python3-vtk7
+      - python3-vtk8
+      state: absent
+
+  - name: Fetch and install fixed paraview package
+    apt:
+      deb: https://berrendorf.inf.h-brs.de/~jmeng2m/debian-package-paraview/paraview_5.7.0+ds.1-3_amd64.deb
+
+  - name: Fetch and install fixed paraview-dev package
+    apt:
+      deb: https://berrendorf.inf.h-brs.de/~jmeng2m/debian-package-paraview/paraview-dev_5.7.0+ds.1-3_amd64.deb
+
+  - name: Fetch and install fixed python3-paraview package
+    apt:
+      deb: https://berrendorf.inf.h-brs.de/~jmeng2m/debian-package-paraview/python3-paraview_5.7.0+ds.1-3_amd64.deb
+
+- jm1.pkg.meta_pkg:
+    name: "jm1-dev-hpc"
+    version: "2"
+    depends:
+    - libblas-dev
+    - liblapack-dev
+    - liblapacke-dev
+    - libopencv-dev
+    - libnetcdf-c++4-dev
+    - libnetcdf-dev
+    - netcdf-bin
+    - paraview
+    - paraview-dev # e.g. for compiling and linking simulation software against ParaView Catalyst
+    - python3-paraview
+
+    # NOTE:
+    # - libnetcdf-c++4-dev and libnetcdf-dev are for handling netCDF files as used for Grids in DLRs TAU
+    # - paraview packages are for reading/writing and visualizing *.vtk files as produced by tau2vtk
+    # - python3-vtk7 and dependent VTK packages like libvtk7-dev and vtk7-examples, have been removed because they break
+    #   python3-paraview. Use VTK headers and libraries from paraview-dev instead.
+
+- shell: "/usr/local/bin/make_install_{{ item|lower }}.sh"
+  register: install_result
+  changed_when:
+    not (install_result.rc == 124 and install_result.stderr == "{{ item }} is already installed. Skipping..")
+  failed_when: not (
+        (install_result.rc == 0) or
+        (install_result.rc == 124 and install_result.stderr == "{{ item }} is already installed. Skipping..")
+    )
+  loop:
+  - FLAME
+  - Elemental
+  - fmt
+
+- set_fact:
+    install_result: !!null

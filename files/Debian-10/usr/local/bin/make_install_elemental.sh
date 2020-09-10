@@ -21,7 +21,7 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 if [ -f /usr/local/src/Elemental/build/install_manifest.txt ] &&
-    cat /usr/local/src/Elemental/build/install_manifest.txt | xargs -i test -e '{}'; then
+    xargs -i test -e '{}' < /usr/local/src/Elemental/build/install_manifest.txt; then
     echo "Elemental is already installed. Skipping.." >&2
     exit 124
 fi
@@ -47,7 +47,7 @@ apt-get install -y \
 apt-get clean
 update-ccache-symlinks
 
-eval $(dpkg-architecture)
+eval "$(dpkg-architecture)"
 export PATH="/usr/lib/ccache:$PATH"
 export CC=gcc
 export CXX=g++
@@ -151,7 +151,7 @@ sudo -u "$USERNAME" cmake \
     #-DCMAKE_CXX_FLAGS=-isystem\ /opt/flame/include \
     #-DCMAKE_EXPORT_NO_PACKAGE_REGISTRY=ON \
 
-sudo -u "$USERNAME" make -j$(nproc)
+sudo -u "$USERNAME" make "-j$(nproc)"
 
 make install
 

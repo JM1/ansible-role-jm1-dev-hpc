@@ -40,7 +40,7 @@ apt-get install -y \
 apt-get clean
 update-ccache-symlinks
 
-eval $(dpkg-architecture)
+eval "$(dpkg-architecture)"
 export PATH="/usr/lib/ccache:$PATH"
 export CC=gcc
 
@@ -91,13 +91,13 @@ sudo -u "$USERNAME" ./configure \
 # interpreters first.
 PYTHON=
 for pyinterpreter in python python3 python2; do
-    if which $pyinterpreter >/dev/null; then
+    if command -v $pyinterpreter >/dev/null; then
         PYTHON=$pyinterpreter
         break
     fi
 done
 
-sudo -u "$USERNAME" make -j$(nproc) PYTHON=$PYTHON
+sudo -u "$USERNAME" make "-j$(nproc)" "PYTHON=$PYTHON"
 
 make install
 

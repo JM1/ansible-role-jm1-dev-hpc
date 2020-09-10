@@ -19,7 +19,7 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 if [ -f /usr/local/src/fmt/build/install_manifest.txt ] &&
-    cat /usr/local/src/fmt/build/install_manifest.txt | xargs -i test -e '{}'; then
+    xargs -i test -e '{}' < /usr/local/src/fmt/build/install_manifest.txt; then
     echo "fmt is already installed. Skipping.." >&2
     exit 124
 fi
@@ -60,6 +60,6 @@ sudo -u "$USERNAME" cmake \
     -DCMAKE_INSTALL_PREFIX="$PREFIX" \
     ..
 
-sudo -u "$USERNAME" make -j$(nproc)
+sudo -u "$USERNAME" make "-j$(nproc)"
 
 make install

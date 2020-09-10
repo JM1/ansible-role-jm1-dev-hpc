@@ -6,9 +6,11 @@
 
 - jm1.pkg.meta_pkg:
     name: "jm1-dev-hpc"
-    version: "2"
+    version: "3"
     depends:
     - libblas-dev
+    - libboost-dev
+    - libeigen3-dev
     - liblapack-dev
     - liblapacke-dev
     - libopencv-dev
@@ -21,10 +23,12 @@
     - paraview
     - paraview-dev # e.g. for compiling and linking simulation software against ParaView Catalyst
     - paraview-python
+    - python3-pytest
 
     # NOTE:
     # - libnetcdf-c++4-dev and libnetcdf-dev are for handling netCDF files as used for Grids in DLRs TAU
     # - libvtk7-dev and paraview are for reading/writing and visualizing *.vtk files as produced by tau2vtk
+    # - python3-pytest, libeigen3-dev and libboost-dev are required for pybind11 tests only
 
 - shell: "/usr/local/bin/make_install_{{ item|lower }}.sh"
   register: install_result
@@ -38,6 +42,7 @@
   - FLAME
   - Elemental
   - fmt
+  - pybind11
 
 - set_fact:
     install_result: !!null

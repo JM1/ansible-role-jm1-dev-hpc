@@ -30,9 +30,9 @@ PREFIX=/opt/pybind11/
 export DEBIAN_FRONTEND=noninteractive
 
 apt-get install -y \
-    git g++ cmake ninja-build ccache python3-pytest libeigen3-dev libboost-dev
+    git g++ cmake ninja-build ccache # python3-pytest libeigen3-dev libboost-dev
 
-# python3-pytest, libeigen3-dev and libboost-dev are required for tests only
+# python3-pytest, libeigen3-dev and libboost-dev are required for tests
 
 apt-get clean
 update-ccache-symlinks
@@ -65,6 +65,7 @@ sudo -u "$USERNAME" cmake \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -G Ninja \
     -DDOWNLOAD_CATCH=ON \
+    -DPYBIND11_TEST=OFF \
     -DCMAKE_INSTALL_PREFIX="$PREFIX" \
     -DCMAKE_INSTALL_LIBDIR="lib/${DEB_BUILD_MULTIARCH}" \
     -DPYBIND11_CMAKECONFIG_INSTALL_DIR="lib/${DEB_BUILD_MULTIARCH}/cmake/pybind11" \

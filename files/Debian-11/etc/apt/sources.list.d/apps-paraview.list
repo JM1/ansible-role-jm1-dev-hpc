@@ -1,0 +1,6 @@
+# (2020) Jakob Meng
+# ParaView packages
+# Ref.: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=959387
+
+deb https://berrendorf.inf.h-brs.de/~jmeng2m/debian-package-paraview/aptly/ unstable main
+#deb-src https://berrendorf.inf.h-brs.de/~jmeng2m/debian-package-paraview/aptly/ unstable main

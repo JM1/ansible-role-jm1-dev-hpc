@@ -58,6 +58,7 @@ cd build/
 sudo -u "$USERNAME" cmake \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+    -DFMT_TEST=OFF \
     ..
 
 sudo -u "$USERNAME" make "-j$(nproc)"

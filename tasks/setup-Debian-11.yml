@@ -28,6 +28,7 @@
     - netcdf-bin
     - paraview
     - paraview-dev # e.g. for compiling and linking simulation software against ParaView Catalyst
+    - python3-numpy
     - python3-paraview
     - python3-pytest
     - 'libpython3.*-dev' # workaround for bug 972551, https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=972551

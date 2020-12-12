@@ -23,6 +23,7 @@
     - paraview
     - paraview-dev # e.g. for compiling and linking simulation software against ParaView Catalyst
     - paraview-python
+    - python3-numpy
     - python3-pytest
 
     # NOTE:

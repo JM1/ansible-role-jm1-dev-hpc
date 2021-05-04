@@ -4,14 +4,10 @@
     dest: /
     mode: preserve
 
-- name: Upgrade to (unofficial) ParaView packages with patches for bug 959387, https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=959387
+- name: Update apt cache
   apt:
     update_cache: yes
-    name:
-    - paraview
-    - paraview-dev
-    - python3-paraview
-    state: latest
+    cache_valid_time: 86400 # 1 day
 
 - jm1.pkg.meta_pkg:
     name: "jm1-dev-hpc"
@@ -36,7 +32,7 @@
     # NOTE:
     # - libnetcdf-c++4-dev and libnetcdf-dev are for handling netCDF files as used for Grids in DLRs TAU
     # - paraview packages are for reading/writing and visualizing *.vtk files as produced by tau2vtk
-    # - python3-vtk7 and dependent VTK packages like libvtk7-dev and vtk7-examples, have been removed because they break
+    # - python3-vtk9 and dependent VTK packages like libvtk9-dev and vtk9-examples, have been removed because they break
     #   python3-paraview. Use VTK headers and libraries from paraview-dev instead.
     # - python3-pytest, libeigen3-dev and libboost-dev are required for pybind11 tests only
 

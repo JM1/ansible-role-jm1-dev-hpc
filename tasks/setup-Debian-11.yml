@@ -39,10 +39,10 @@
 - shell: "/usr/local/bin/make_install_{{ item|lower }}.sh"
   register: install_result
   changed_when:
-    not (install_result.rc == 124 and install_result.stderr == "{{ item }} is already installed. Skipping..")
+    not (install_result.rc == 124 and install_result.stderr == (item + " is already installed. Skipping.."))
   failed_when: not (
         (install_result.rc == 0) or
-        (install_result.rc == 124 and install_result.stderr == "{{ item }} is already installed. Skipping..")
+        (install_result.rc == 124 and install_result.stderr == (item + " is already installed. Skipping.."))
     )
   loop:
   - FLAME
